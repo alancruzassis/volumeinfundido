@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Cálculo volume infundido</title>
+
+    <style>
+        html, body, div, span, applet, object, iframe,
+        h1, h2, h3, h4, h5, h6, p, blockquote, pre,
+        a, abbr, acronym, address, big, cite, code,
+        del, dfn, em, img, ins, kbd, q, s, samp,
+        small, strike, strong, sub, sup, tt, var,
+        b, u, i, center,
+        dl, dt, dd, ol, ul, li,
+        fieldset, form, label, legend,
+        table, caption, tbody, tfoot, thead, tr, th, td,
+        article, aside, canvas, details, embed, 
+        figure, figcaption, footer, header, hgroup, 
+        menu, nav, output, ruby, section, summary,
+        time, mark, audio, video {
+            margin: 0;
+            padding: 0;
+            border: 0;
+            font-size: 100%;
+            font: inherit;
+            vertical-align: baseline;
+        }
+        textarea:focus, input:focus{
+            outline: none;
+        }
+        body{
+            height:100%;
+            width: 100%;
+            background-color: #fefefe;
+            display: flex;
+            flex-direction: column;
+            min-height:100vh;
+            font-family: 'open sans', sans-serif;
+        }
+
+        html{
+            height:10%;
+            width: 100%;
+        }
+        main{
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: space-evenly;    
+            width: 100%;
+            height: 100%;
+            padding-right: 4%;
+            padding-left: 4%;
+            padding-top: 1%;
+            padding-bottom: 1%;
+            box-sizing: border-box;
+            font-family:'open sans', sans-serif;
+            font-size: 18px;
+            color: #333333;
+        }
+
+        header{
+            width: auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #ffffff;
+            color: #0078D7;
+            padding: 6px 12px 6px 12px;
+            box-shadow: 0px 1px 2px 0px rgba(142, 142, 142, 0.75);
+            margin-bottom: 8px;
+            position: relative;
+        }
+
+        h1{
+            font-family: 'open sans', Candara, Impact, Haettenschweiler, 'Arial Narrow Bold', sans-serif;
+            font-size: 40px;
+            font-weight: 600;
+        }        
+        header h2{
+            font-size: 20px;
+            font-family:'open sans', sans-serif;
+        }
+
+        textarea:focus, input:focus{
+            outline: none;
+        }
+
+        input::-webkit-outer-spin-button,
+        input::-webkit-inner-spin-button {
+            /* display: none; <- Crashes Chrome on hover */
+            -webkit-appearance: none;
+            margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+        }
+
+
+        .mainSection{
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        form input{
+            margin-left: 10px;
+            border-radius: 5px;
+            border: 1px solid gray;
+
+            font-size: 18px;
+            height: 23px;
+            width: 70px;
+            padding: 2px;
+            margin: 5px 0px 18px 0px;
+            border: 1px solid #0078D7;
+           border-radius: 5px;
+           margin-right: 10px;
+           margin-left: 5px;
+           text-align: center;
+        }
+
+        input:read-only{
+            background-color: #e8e8e8;
+            border: 1px solid gray;
+        }
+
+        
+        
+        footer{
+			font-family: 'open sans', sans-serif;
+			font-size: 15px;
+			color: white;
+			text-shadow: 0.5px 0.5px 0px gray;
+			
+			width:100%;
+			left: 0px;
+			min-width: 100%;
+			background-color: #0078D7;
+			padding-top: 8px;
+			padding-bottom: 8px;
+			text-align: center;
+			margin: 0;
+			border: 0;
+			}
+
+    </style>
+
+</head>
+<body >
+    <header>
+        <h1>Volume Infundido / Volume Prescrito</h1>
+    </header>
+    <main>
+    <form class="mainSection" oninput="calculo()" >
+        <div style="display:flex; flex-direction:row;">
+            <div>
+                <label for="vazaoPrescrita">Vazão Prescrita<input autofocus type="number" id="vazaoPrescrita" onkeyup="PressEnter('volumeInfundido');"></label>
+            </div>
+            <div>
+                <label for="horasDia">* <input type="number" id="horasDia" value="22" style="width: 40px; border-color: gray;"></label>
+            </div>
+            </div>
+        <div>
+            <label for="volumePrescrito">Volume Prescrito<input type="number" id="volumePrescrito" readonly></label>
+        </div>
+        <div>
+            <label for="volumeInfundido">Volume Infundido<input type="number" id="volumeInfundido" oninput="mudarCor()"></label>
+        </div>
+        <div>
+            <label for="percentualVolume">% de Volume Infundido<input type="number" id="percentualVolume" readonly ></label>
+        </div>
+        <div>
+            <input type="reset" value="Limpar" style="font-size: 15px;">
+        </div>
+    </form>
+    </main>
+    <footer>
+        <div>
+            © Copyright 2023
+        </div>
+    </footer>
+    <script type="text/javascript">
+
+        function PressEnter(nextinputId){
+            if(event.keyCode == 13){
+                document.getElementById(nextinputId).focus();     
+                return false;           
+            }
+        }
+    </script>
+    <script>
+
+        function calculo(){
+
+            //SELEÇÃO
+            let vazaoPrescrita = document.getElementById('vazaoPrescrita');
+            let horasDia = document.getElementById('horasDia');
+            let volumePrescrito = document.getElementById('volumePrescrito');
+            let volumeInfundido = document.getElementById('volumeInfundido');
+            let percentualVolume = document.getElementById('percentualVolume');
+
+            //ATRIBUIÇÃO DE VALOR
+
+            vazaoPrescrita = vazaoPrescrita.value;
+            horasDia = horasDia.value;
+            //volumePrescrito =volumePrescrito.value;
+            volumeInfundido = volumeInfundido.value;
+            //percentualVolume = percentualVolume.value;
+
+            //CÁLCULO e EXIBIÇÃO
+
+            var prescrito = (vazaoPrescrita * horasDia).toFixed(1);
+            volumePrescrito.value = prescrito;
+                        
+
+            percentualVolume.value = ((volumeInfundido/prescrito)*100).toFixed(2);
+
+        
+        }
+    </script>
+    <script>
+        function mudarCor(){
+            let vazaoPrescrita = document.getElementById('vazaoPrescrita');
+            let horasDia = document.getElementById('horasDia');
+            let volumePrescrito = document.getElementById('volumePrescrito');
+            let volumeInfundido = document.getElementById('volumeInfundido');
+            let percentualVolume = document.getElementById('percentualVolume');
+
+            //ATRIBUIÇÃO DE VALOR
+
+            vazaoPrescrita = vazaoPrescrita.value;
+            horasDia = horasDia.value;
+            //volumePrescrito =volumePrescrito.value;
+            volumeInfundido = volumeInfundido.value;
+            //percentualVolume = percentualVolume.value;
+            var prescrito = (vazaoPrescrita * horasDia).toFixed(1);
+            var percentualVolumeVar = ((volumeInfundido/prescrito)*100);
+
+
+            if(percentualVolumeVar<80){
+                console.log("menor");
+                document.getElementById('percentualVolume').style.borderColor="red";
+            }else{
+                document.getElementById('percentualVolume').style.borderColor="green";
+            }
+           
+    }
+    </script>
+</body>
+</html>
